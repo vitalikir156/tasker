@@ -31,25 +31,7 @@ func insert(db *sqlx.DB) {
 	if len(task.Status) < 1 {
 		task.Status = "new"
 	}
-	nowdate := time.Now().Format("02.01.06")
-	nowtime := time.Now().Format("15.04")
-	fmt.Printf("enter deadline date (format dd.mm.yy)(nothing for %v)", nowdate)
-	dateread, err := userinputreader()
-	if err != nil {
-		fmt.Println(err)
-	}
-	if len(dateread) > 0 {
-		nowdate = dateread
-	}
-	fmt.Printf("enter deadline time (format hh.mm)(nothing for %v)", nowtime)
-	timeread, err := userinputreader()
-	if err != nil {
-		fmt.Println(err)
-	}
-	if len(timeread) > 0 {
-		nowtime = timeread
-	}
-	task.Deadline, err = time.Parse("02.01.0615.04", nowdate+nowtime)
+	task.Deadline, err = datetimegetter()
 	if err != nil {
 		fmt.Println(err)
 		fmt.Println("task without deadline is fiasco, exiting")
@@ -60,6 +42,7 @@ func insert(db *sqlx.DB) {
 
 	fmt.Println(res, err)
 }
+
 func update(db *sqlx.DB) {
 	var killer bool
 	var task sqltranslation.Tasktable
@@ -87,7 +70,7 @@ func update(db *sqlx.DB) {
 	4: update deadline
 	select option and hit enter:`)
 		var s int
-		_, err := fmt.Scanln(&s)
+		_, err = fmt.Scanln(&s)
 		if err != nil {
 			fmt.Println(err)
 			s = -1
@@ -96,9 +79,9 @@ func update(db *sqlx.DB) {
 		case 0:
 			{
 				killer = true
-				out, err := sqltranslation.EditTask(db, task)
+				out, err2 := sqltranslation.EditTask(db, task)
 				if err != nil {
-					fmt.Println(err)
+					fmt.Println(err2)
 				} else {
 					fmt.Println(out)
 				}
@@ -132,27 +115,9 @@ func update(db *sqlx.DB) {
 
 		case 4:
 			{
-				nowdate := time.Now().Format("02.01.06")
-				nowtime := time.Now().Format("15.04")
-				fmt.Printf("enter deadline date (format dd.mm.yy)(nothing for %v)", nowdate)
-				dateread, err := userinputreader()
-				if err != nil {
-					fmt.Println(err)
-				}
-				if len(dateread) > 0 {
-					nowdate = dateread
-				}
-				fmt.Printf("enter deadline time (format hh.mm)(nothing for %v)", nowtime)
-				timeread, err := userinputreader()
-				if err != nil {
-					fmt.Println(err)
-				}
-				if len(timeread) > 0 {
-					nowtime = timeread
-				}
-				task.Deadline, err = time.Parse("02.01.0615.04", nowdate+nowtime)
-				if err != nil {
-					fmt.Println(err)
+				date, err2 := datetimegetter()
+				if err2 == nil {
+					task.Deadline = date
 				}
 			}
 		default:
@@ -162,6 +127,7 @@ func update(db *sqlx.DB) {
 		}
 	}
 }
+
 func del(db *sqlx.DB) {
 	var task sqltranslation.Tasktable
 	fmt.Println("enter ID for delete:")
@@ -174,11 +140,13 @@ func del(db *sqlx.DB) {
 
 	fmt.Println(res, err)
 }
+
 func get(db *sqlx.DB) {
 	res, err := sqltranslation.GetAll(db)
 	fmt.Println(res, err)
 }
-func Ui(db *sqlx.DB) bool {
+
+func UI(db *sqlx.DB) bool {
 	fmt.Print(`
 	-=MAIN MENU=-
 0: exit
@@ -214,16 +182,6 @@ func Ui(db *sqlx.DB) bool {
 		{
 			del(db)
 		}
-	case 5:
-		{
-			var dba sqltranslation.Tasktable
-			//	str, _ := userinputreader()
-			//	dba.ID, err = strconv.ParseInt(str, 10, 64)
-			_, err := fmt.Scanln(&dba.ID)
-			fmt.Println(sqltranslation.GetOverID(db, dba))
-			fmt.Println(err)
-
-		}
 	default:
 		{
 			fmt.Printf("bad input entered: %v\n", s)
@@ -231,11 +189,38 @@ func Ui(db *sqlx.DB) bool {
 	}
 	return false
 }
+
 func userinputreader() (string, error) {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print("-> ")
 	text, err := reader.ReadString('\n')
-	text = strings.Replace(text, "\n", "", -1)
-	//fmt.Println(err)
+	text = strings.ReplaceAll(text, "\n", "")
+	// fmt.Println(err)
 	return text, err
+}
+
+func datetimegetter() (time.Time, error) {
+	nowdate := time.Now().Format("02.01.06")
+	nowtime := time.Now().Format("15.04")
+	fmt.Printf("enter deadline date (format dd.mm.yy)(nothing for %v)", nowdate)
+	dateread, err2 := userinputreader()
+	if err2 != nil {
+		fmt.Println(err2)
+	}
+	if len(dateread) > 0 {
+		nowdate = dateread
+	}
+	fmt.Printf("enter deadline time (format hh.mm)(nothing for %v)", nowtime)
+	timeread, err2 := userinputreader()
+	if err2 != nil {
+		fmt.Println(err2)
+	}
+	if len(timeread) > 0 {
+		nowtime = timeread
+	}
+	date, err := time.Parse("02.01.0615.04", nowdate+nowtime)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return date, err
 }

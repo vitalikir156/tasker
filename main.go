@@ -13,7 +13,7 @@ func main() {
 	db := sqltranslation.Start("user=vit password=p!ssword2717 dbname=tasker port=5432 sslmode=disable")
 	defer db.Close()
 	for !killer {
-		killer = ui.Ui(db)
+		killer = ui.UI(db)
 	}
 	fmt.Println("Yeap! Exiting")
 }

@@ -31,6 +31,7 @@ func Start(config string) *sqlx.DB {
 	db.SetMaxIdleConns(6)
 	return db
 }
+
 func PostTask(db *sqlx.DB, q Tasktable) (string, error) {
 	if len(q.Status) < 1 {
 		q.Status = "new"
@@ -43,7 +44,8 @@ func PostTask(db *sqlx.DB, q Tasktable) (string, error) {
 	if err != nil {
 		return fmt.Sprintf("%v", err), err
 	}
-	out, err := tx.Exec("INSERT INTO tasker.tasker (message, status, deadline) VALUES ($1, $2, $3)", q.Message, q.Status, q.Deadline)
+	qwer := "INSERT INTO tasker.tasker (message, status, deadline) VALUES ($1, $2, $3)"
+	out, err := tx.Exec(qwer, q.Message, q.Status, q.Deadline)
 	if err != nil {
 		return fmt.Sprintf("%v", err), err
 	}
@@ -54,6 +56,7 @@ func PostTask(db *sqlx.DB, q Tasktable) (string, error) {
 	err = tx.Commit()
 	return fmt.Sprintf("%v line(s) inserted", out2), err
 }
+
 func EditTask(db *sqlx.DB, q Tasktable) (string, error) {
 	tx, err := db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable})
 	defer func() {
@@ -86,6 +89,7 @@ func EditTask(db *sqlx.DB, q Tasktable) (string, error) {
 	err = tx.Commit()
 	return "update with no errors", err
 }
+
 func DelTask(db *sqlx.DB, q Tasktable) (string, error) {
 	tx, err := db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable})
 	defer func() {
@@ -109,8 +113,8 @@ func DelTask(db *sqlx.DB, q Tasktable) (string, error) {
 	}
 	return fmt.Sprintf("%v line(s) deleted", out2), err
 }
-func GetAll(db *sqlx.DB) (string, error) {
 
+func GetAll(db *sqlx.DB) (string, error) {
 	query := `select id,message,status,created,deadline from tasker.tasker`
 	rows, err := db.QueryContext(context.Background(), query)
 	if err != nil {
@@ -123,13 +127,14 @@ func GetAll(db *sqlx.DB) (string, error) {
 		if err = rows.Scan(&id, &message, &status, &created, &deadline); err != nil {
 			fmt.Println(err)
 		} else {
-			out.WriteString(fmt.Sprintf("ID:%v Task:%v Status:%v Created:%v Deadline:%v\n", id, message, status, created, deadline))
+			s := "ID:%v Task:%v Status:%v Created:%v Deadline:%v\n"
+			out.WriteString(fmt.Sprintf(s, id, message, status, created, deadline))
 		}
 	}
 	return out.String(), nil
 }
-func GetOverID(db *sqlx.DB, q Tasktable) (string, error) {
 
+func GetOverID(db *sqlx.DB, q Tasktable) (string, error) {
 	query := `select id,message,status,created,deadline from tasker.tasker where id=$1`
 	rows, err := db.QueryContext(context.Background(), query, q.ID)
 	if err != nil {
@@ -142,7 +147,8 @@ func GetOverID(db *sqlx.DB, q Tasktable) (string, error) {
 		if err = rows.Scan(&id, &message, &status, &created, &deadline); err != nil {
 			fmt.Println(err)
 		} else {
-			out.WriteString(fmt.Sprintf("ID:%v Task:%v Status:%v Created:%v Deadline:%v\n", id, message, status, created, deadline))
+			s := "ID:%v Task:%v Status:%v Created:%v Deadline:%v\n"
+			out.WriteString(fmt.Sprintf(s, id, message, status, created, deadline))
 		}
 	}
 	return out.String(), nil
