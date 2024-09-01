@@ -15,5 +15,7 @@ services:
       POSTGRES_USER: vit
       POSTGRES_PASSWORD: p!ssword2717
       POSTGRES_DB: tasker
+      TZ: GMT-3
+      PGTZ: GMT-3
     ports:
       - 5432:5432
