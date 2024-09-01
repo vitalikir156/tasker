@@ -27,11 +27,8 @@ jobs:
     - name: Test
       run: go test -v ./...
       
-    - name: GolangCI-Lint Action
-  # You may pin to the exact commit or the version.
-  # uses: matoous/golangci-lint-action@8395bf699f28bab78ec7fe10ab72afd14f567b21
-      uses: matoous/golangci-lint-action@v1.23.3
+    - name: Linters
+      uses: golangci/golangci-lint-action@v3
       with:
-    # Path of the GolangCI-Lint config file
-        config: .
+       version: v1.57.2
           
