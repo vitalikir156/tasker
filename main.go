@@ -39,8 +39,9 @@ func main() {
 			continue
 		}
 	}
-	//var selector
+	// var selector
 }
+
 func menucore(menu *ui.Switchertype, task *sqltranslation.Tasktable, db *sqlx.DB) (string, error) {
 	switch menu.Userinput {
 	case "exit": // Выход из утилиты в любом месте
@@ -52,18 +53,20 @@ func menucore(menu *ui.Switchertype, task *sqltranslation.Tasktable, db *sqlx.DB
 	case "main": // Выход в основное меню в любом месте
 		{
 			menu.Userinput = ""
+			menu.Menu0 = 0
 			task = &sqltranslation.Tasktable{}
-			fmt.Println(task)
 		}
 	}
 	switch menu.Menu0 {
 	case 0:
 		{
 			out, err := ui.Mainmenu(menu)
+
 			return out, err
 		}
 
 	case 1:
+
 		{
 			menu.Allowuserinput = false
 			menu.Menu0 = 0
@@ -71,24 +74,34 @@ func menucore(menu *ui.Switchertype, task *sqltranslation.Tasktable, db *sqlx.DB
 		}
 	case 2:
 		{
-			out, err := ui.UpdateDate(menu, task)
-
+			out, err := ui.Post(menu, task, db)
 			return out, err
 		}
 	case 3:
 		{
-			out := "3"
-			return out, nil
+			out, err := ui.Update(menu, task, db)
+			return out, err
 		}
 	case 4:
 		{
-			out := "1"
-			return out, nil
+			out, err := ui.Del(menu, task, db)
+			return out, err
 		}
-	case 5:
+	case 11:
 		{
-			out := "1"
-			return out, nil
+			out, err := ui.GetWithStatus(menu, db)
+			return out, err
+		}
+	case 12:
+		{
+			out, err := ui.GetWithoutStatus(menu, db)
+			return out, err
+		}
+	case 13:
+		{
+			menu.Allowuserinput = false
+			menu.Menu0 = 0
+			return sqltranslation.GetAllDeadlined(db)
 		}
 	}
 	return "assss", nil
@@ -102,36 +115,3 @@ func userinputreader() (string, error) {
 	// fmt.Println(err)
 	return text, err
 }
-
-/*	if menu.Menu0 == 0 {
-
-		{
-			if len(menu.Userinput) > 0 {
-				x, _ := strconv.Atoi(menu.Userinput)
-				if 0 <= x && x <= 5 {
-					menu.Menu0 = x
-				}
-			} else {
-				a := (`
--=MAIN MENU=-
-0: exit
-1: get all tasks
-2: create task
-3: edit task
-4: delete task
-select option and hit enter:`)
-				return a, nil
-			}
-		}
-	}
-
-	if menu.Menu0 == 1 {
-		{
-			a := (`
-
-1: get all tasks
-`)
-			return a, nil
-		}
-	}
-	menu.Allowuserinput = false*/
