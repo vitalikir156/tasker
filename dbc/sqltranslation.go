@@ -123,33 +123,85 @@ func GetAll(db *sqlx.DB) (string, error) {
 	defer rows.Close()
 	var out strings.Builder
 	for rows.Next() {
-		var id, message, status, created, deadline string
-		if err = rows.Scan(&id, &message, &status, &created, &deadline); err != nil {
+		var task Tasktable
+		if err = rows.Scan(&task.ID, &task.Message, &task.Status, &task.Created, &task.Deadline); err != nil {
 			fmt.Println(err)
 		} else {
-			s := "ID:%v Task:%v Status:%v Created:%v Deadline:%v\n"
-			out.WriteString(fmt.Sprintf(s, id, message, status, created, deadline))
+			out.WriteString(fmt.Sprintf("ID:%v Status:%v Created:%v Deadline:%v Task:%v \n",
+				task.ID, task.Status, task.Created.Format("02.01.06 15:04"), task.Deadline.Format("02.01.06 15:04"), task.Message))
 		}
 	}
 	return out.String(), nil
 }
 
-func GetOverID(db *sqlx.DB, q Tasktable) (string, error) {
-	query := `select id,message,status,created,deadline from tasker.tasker where id=$1`
-	rows, err := db.QueryContext(context.Background(), query, q.ID)
+func GetWithStatus(db *sqlx.DB, x string) (string, error) {
+	query := `select id,message,status,created,deadline from tasker.tasker where status=$1`
+	rows, err := db.QueryContext(context.Background(), query, x)
 	if err != nil {
 		return "", err
 	}
 	defer rows.Close()
 	var out strings.Builder
 	for rows.Next() {
-		var id, message, status, created, deadline string
-		if err = rows.Scan(&id, &message, &status, &created, &deadline); err != nil {
+		var task Tasktable
+		if err = rows.Scan(&task.ID, &task.Message, &task.Status, &task.Created, &task.Deadline); err != nil {
 			fmt.Println(err)
 		} else {
-			s := "ID:%v Task:%v Status:%v Created:%v Deadline:%v\n"
-			out.WriteString(fmt.Sprintf(s, id, message, status, created, deadline))
+			out.WriteString(fmt.Sprintf("ID:%v Status:%v Created:%v Deadline:%v Task:%v \n",
+				task.ID, task.Status, task.Created.Format("02.01.06 15:04"), task.Deadline.Format("02.01.06 15:04"), task.Message))
 		}
 	}
 	return out.String(), nil
+}
+
+func GetWithoutStatus(db *sqlx.DB, s string) (string, error) {
+	query := `select id,message,status,created,deadline from tasker.tasker where status<>$1`
+	rows, err := db.QueryContext(context.Background(), query, s)
+	if err != nil {
+		return "", err
+	}
+	defer rows.Close()
+	var out strings.Builder
+	for rows.Next() {
+		var task Tasktable
+		if err = rows.Scan(&task.ID, &task.Message, &task.Status, &task.Created, &task.Deadline); err != nil {
+			fmt.Println(err)
+		} else {
+			out.WriteString(fmt.Sprintf("ID:%v Status:%v Created:%v Deadline:%v Task:%v \n",
+				task.ID, task.Status, task.Created.Format("02.01.06 15:04"), task.Deadline.Format("02.01.06 15:04"), task.Message))
+		}
+	}
+	return out.String(), nil
+}
+
+func GetAllDeadlined(db *sqlx.DB) (string, error) {
+	query := `select id,message,status,created,deadline from tasker.tasker where deadline<created`
+	rows, err := db.QueryContext(context.Background(), query)
+	if err != nil {
+		return "", err
+	}
+	defer rows.Close()
+	var out strings.Builder
+	for rows.Next() {
+		var task Tasktable
+		if err = rows.Scan(&task.ID, &task.Message, &task.Status, &task.Created, &task.Deadline); err != nil {
+			fmt.Println(err)
+		} else {
+			out.WriteString(fmt.Sprintf("ID:%v Status:%v Created:%v Deadline:%v Task:%v \n",
+				task.ID, task.Status, task.Created.Format("02.01.06 15:04"), task.Deadline.Format("02.01.06 15:04"), task.Message))
+		}
+	}
+	return out.String(), nil
+}
+
+func GetOverID(db *sqlx.DB, q *Tasktable) (string, error) {
+	query := `select id,message,status,created,deadline from tasker.tasker where id=$1`
+	row := db.QueryRowContext(context.Background(), query, q.ID)
+
+	err := row.Scan(&q.ID, &q.Message, &q.Status, &q.Created, &q.Deadline)
+	if err != nil {
+		return "", err
+	}
+
+	return "get over id: success", nil
 }
