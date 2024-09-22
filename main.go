@@ -104,7 +104,7 @@ func menucore(menu *ui.Switchertype, task *sqltranslation.Tasktable, db *sqlx.DB
 			return sqltranslation.GetAllDeadlined(db)
 		}
 	}
-	return "assss", nil
+	return "", nil
 }
 
 func userinputreader() (string, error) {

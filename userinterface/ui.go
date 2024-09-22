@@ -431,5 +431,5 @@ func UpdateTime(menu *Switchertype, task *sqltranslation.Tasktable) (string, err
 		return "", err
 	}
 	task.Deadline = now
-	return "date updated without any errors", nil
+	return "time updated without any errors", nil
 }

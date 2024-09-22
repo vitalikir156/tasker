@@ -10,19 +10,20 @@
         +dbc
         +ui
     +update
-get with status
-    dbc
-    ui
-get without status 
-    dbc
-    ui
-get where deadline < time.now
-    dbc
-    ui
++get with status
+   + dbc
+   + ui
++get without status 
+   + dbc
+   + ui
++get where deadline < time.now
+   + dbc
+    +ui
     
 +delwithid
 
-pflag 
 
-tests ui
-tests dbc
++tests ui
++tests dbc
+
+pflag
